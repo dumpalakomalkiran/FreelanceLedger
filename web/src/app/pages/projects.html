@@ -1,0 +1,26 @@
+<div class="heading"><h1>Projects</h1><button class="primary" (click)="edit()" [disabled]="!clients().length || state.busy() || state.open()">Add project</button></div>
+@if (state.error()) {<p class="error" role="alert">{{state.error()}} @if (!loaded()) {<button (click)="load()">Retry</button>}</p>}
+<p class="notice" aria-live="polite">{{state.notice()}}</p>
+@if (state.open()) {
+  <form [formGroup]="form" (ngSubmit)="save()"><fieldset [disabled]="state.busy()"><legend>{{state.editing() === null ? 'New project' : 'Edit project'}}</legend>
+    <div class="fields"><label>Project name<input formControlName="name" maxlength="200" required autofocus></label>
+    <label>Client<select formControlName="client_id" required><option [ngValue]="0" disabled>Select a client</option>
+    @for (client of clients();track client.id) {<option [ngValue]="client.id">{{client.name}} · {{client.currency}}</option>}</select></label>
+    <label>Hourly rate {{owners().get(form.controls.client_id.value)?.currency}}<input formControlName="rate" inputmode="decimal" required></label></div>
+    @if (form.touched && form.invalid) {<p class="error">Enter a name, select a client and enter a nonnegative rate with up to two decimal places.</p>}
+    <div class="actions"><button class="primary" type="submit">Save project</button><button type="button" (click)="state.close()">Cancel</button></div>
+  </fieldset></form>
+}
+@if (!loaded() && state.busy()) {<p role="status">Loading projects…</p>}
+@if (loaded()) {
+  <div class="filters" aria-label="Project status"><button [attr.aria-pressed]="!showArchived()" (click)="showArchived.set(false)">Active</button><button [attr.aria-pressed]="showArchived()" (click)="showArchived.set(true)">Archived</button></div>
+  @if (visible().length) {
+    <div class="table-wrap"><table><caption class="sr">Projects</caption><thead><tr><th>Project</th><th>Client</th><th>Hourly rate</th><th><span class="sr">Actions</span></th></tr></thead>
+    <tbody>@for (row of visible(); track row.id) {
+      <tr><th scope="row">{{row.name}}</th><td>{{owners().get(row.client_id)?.name}}</td><td class="amount">@if (owners().get(row.client_id); as owner) { {{row.default_hourly_rate_minor | money:owner.currency}} }</td>
+      <td><div class="actions"><button (click)="edit(row)" [disabled]="state.busy() || state.open()">Edit</button>
+      <button (click)="archive(row)" [disabled]="state.busy() || state.open()">{{row.archived?'Restore':'Archive'}}</button></div></td></tr>
+    }</tbody></table></div>
+  } @else if (!clients().length) {<p class="empty"><a routerLink="/clients">Add a client</a> before creating a project.</p>}
+  @else {<p class="empty">{{showArchived()?'No archived projects.':'No active projects.'}}</p>}
+}

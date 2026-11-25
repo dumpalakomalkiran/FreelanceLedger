@@ -1,0 +1,26 @@
+<div class="heading"><h1>Clients</h1><button class="primary" (click)="edit()" [disabled]="!loaded() || state.busy() || state.open()">Add client</button></div>
+@if (state.error()) {<p role="alert" class="error">{{state.error()}} @if (!loaded()) {<button (click)="load()">Retry</button>}</p>}
+<p class="notice" aria-live="polite">{{state.notice()}}</p>
+@if (state.open()) {
+  <form [formGroup]="form" (ngSubmit)="save()"><fieldset [disabled]="state.busy()">
+    <legend>{{state.editing() === null ? 'New client' : 'Edit client'}}</legend>
+    <div class="fields">
+      <label>Client name<input formControlName="name" maxlength="200" required autofocus></label>
+      <label>Email<input formControlName="email" type="email" maxlength="254" required></label>
+      <label>Currency<select formControlName="currency"><option>INR</option><option>USD</option></select></label>
+      <label>Payment terms (days)<input formControlName="payment_terms_days" type="number" min="0" max="3650" step="1" required></label>
+    </div>
+    @if (form.touched && form.invalid) {<p class="error">Enter a name, a valid email and whole payment terms between 0 and 3650 days.</p>}
+    <div class="actions"><button type="submit" class="primary">Save client</button><button type="button" (click)="state.close()">Cancel</button></div>
+  </fieldset></form>
+}
+@if (!loaded() && state.busy()) {<p role="status">Loading clients…</p>}
+@if (loaded()) {
+  @if (rows().length) {
+    <div class="table-wrap"><table><caption class="sr">Client directory</caption><thead><tr><th>Name</th><th>Email</th><th>Currency</th><th>Terms</th><th><span class="sr">Actions</span></th></tr></thead>
+    <tbody>@for (row of rows(); track row.id) {
+      <tr><th scope="row">{{row.name}}</th><td>{{row.email}}</td><td>{{row.currency}}</td><td>{{row.payment_terms_days}} days</td>
+      <td><button [attr.aria-label]="'Edit '+row.name" (click)="edit(row)" [disabled]="state.busy() || state.open()">Edit</button></td></tr>
+    }</tbody></table></div>
+  } @else {<p class="empty">Add your first client to start tracking projects.</p>}
+}
