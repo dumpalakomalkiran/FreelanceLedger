@@ -1,0 +1,34 @@
+<div class="heading"><h1>Time entries</h1><button class="primary" [disabled]="!active() || state.busy() || state.open()" (click)="edit()">Add entry</button></div>
+@if (state.error()) {<p class="error" role="alert">{{state.error()}} <button (click)="load()">Refresh</button></p>}
+<p aria-live="polite" class="notice">{{state.notice()}}</p>
+@if (state.open()) {
+  <form [formGroup]="form" (ngSubmit)="save()"><fieldset [disabled]="state.busy()"><legend>{{state.editing()===null?'New time entry':'Edit time entry'}}</legend>
+  <div class="fields"><label>Project<select formControlName="project_id"><option [ngValue]="0" disabled>Select project</option>
+  @for(p of available(); track p.id){<option [ngValue]="p.id">{{p.name}}</option>}</select></label>
+  <label>Date<input type="date" formControlName="entry_date" required></label>
+  <label>Minutes<input type="number" formControlName="minutes" min="1" step="1" required></label>
+  <label>Hourly rate override {{currencies().get(projectMap().get(form.controls.project_id.value)?.client_id ?? 0)}}<input formControlName="rate" inputmode="decimal" placeholder="Project rate"></label>
+  <label>Description<textarea formControlName="description" rows="2" maxlength="2000" required></textarea></label>
+  <label class="check"><input type="checkbox" formControlName="billable"> Billable</label></div>
+  @if(form.touched && form.invalid){<p class="error">Select a project and date, add a description and enter positive whole minutes. An optional rate can have up to two decimal places.</p>}
+  <div class="actions"><button class="primary">Save entry</button><button type="button" (click)="state.close()">Cancel</button></div></fieldset></form>
+}
+@if(!loaded() && state.busy()){<p role="status">Loading time entries…</p>}
+@if(loaded()){
+<form [formGroup]="filters" (ngSubmit)="apply()"><fieldset><legend>Filter time</legend><div class="fields">
+<label>Project<select formControlName="project_id"><option [ngValue]="0">All projects</option>@for(p of projects();track p.id){<option [ngValue]="p.id">{{p.name}}</option>}</select></label>
+<label>From<input type="date" formControlName="from"></label><label>Through<input type="date" formControlName="to"></label>
+<label>Billable<select formControlName="billable"><option value="">All entries</option><option value="true">Billable</option><option value="false">Non-billable</option></select></label>
+<label>Invoice<select formControlName="invoiced"><option value="">All entries</option><option value="true">Invoiced</option><option value="false">Unattached</option></select></label></div>
+@if(filters.hasError('range')){<p class="error" role="alert">The end date must be on or after the start date.</p>}
+<div class="actions"><button>Apply filters</button><button type="button" (click)="filters.reset(); apply()">Clear</button></div></fieldset></form>
+@if(visible().length){
+<div class="table-wrap"><table><caption class="sr">Recorded time</caption><thead><tr><th>Date</th><th>Project / description</th><th>Minutes</th><th>Rate / hour</th><th>Billing</th><th>Actions</th></tr></thead><tbody>
+@for(e of visible();track e.id){<tr><td>{{e.entry_date}}</td><td><strong>{{projectMap().get(e.project_id)?.name}}</strong><br>{{e.description}}</td><td>{{e.minutes}}</td><td>
+@if(projectMap().get(e.project_id);as p){@if(currencies().get(p.client_id);as currency){ {{(e.hourly_rate_override_minor ?? p.default_hourly_rate_minor) | money:currency}} }}
+</td><td>{{e.billable?'Billable':'Non-billable'}}</td><td>
+@if(e.invoice_id!==null){<a [routerLink]="['/invoices',e.invoice_id]">View invoice</a>}@else{
+<div class="actions"><button [disabled]="state.open() || state.busy()" (click)="edit(e)">Edit</button><button [disabled]="state.open() || state.busy()" (click)="remove(e)">Delete</button></div>}
+</td></tr>}</tbody></table></div>
+}@else{<p class="empty">No time entries match this view.</p>}
+}

@@ -9,3 +9,13 @@ form{margin:1.2rem 0;background:white;padding:1.4rem;border:1px solid #cad2c6;bo
 form .actions{margin-top:1rem}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;background:white;text-align:left}td,th{padding:1rem;border-bottom:1px solid #d9dfd5}thead th{background:#e9eee5;font-size:.82rem;color:#45584e}.amount{font-variant-numeric:tabular-nums;white-space:nowrap}.actions{flex-wrap:wrap}.filters{margin:1rem 0}.filters [aria-pressed=true]{background:#34594a;color:white}
 .notice{color:#335b43}.notice:empty{margin:.8rem}.error{color:#922e23}.empty{padding:2rem 1rem;background:white}.sr,.skip:not(:focus){position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.skip:focus{position:fixed;background:white;padding:1rem;z-index:1}a{color:#21573d}
 @media(max-width:580px){.bar{flex-wrap:wrap;gap:.3rem;padding-block:.65rem}nav a{padding:.5rem}td,th{padding:.7rem}.actions{gap:.35rem}button{min-height:2.5rem}}
+textarea{font:inherit;border:1px solid #9daea3;border-radius:4px;padding:.65rem;resize:vertical}.check{display:flex;align-items:center}.status{text-transform:capitalize}
+.invoice-sheet{background:white;margin:1rem 0;padding:clamp(1rem,4vw,3rem)}.invoice-sheet h1{font-size:clamp(1.8rem,5vw,3.4rem)}
+.invoice-meta{display:flex;justify-content:space-between;gap:2rem;flex-wrap:wrap;margin:1.5rem 0}.invoice-meta h2{font-size:1rem}
+.invoice-sheet dl{display:grid;grid-template-columns:1fr auto;gap:.45rem 1.5rem}.invoice-sheet dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.totals{max-width:22rem;margin:1.5rem 0 0 auto}.bar nav{flex-wrap:wrap}
+@media print{
+ @page{margin:16mm}body{background:white;color:black}header,.skip,.screen{display:none!important}
+ main,.invoice-sheet{max-width:none;padding:0;margin:0}.invoice-sheet .table-wrap{overflow:visible}
+ .invoice-sheet thead{display:table-header-group}.invoice-sheet tr,.totals,.invoice-meta{break-inside:avoid}
+}
