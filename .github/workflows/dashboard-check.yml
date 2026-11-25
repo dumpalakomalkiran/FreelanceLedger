@@ -1,0 +1,30 @@
+name: Dashboard verification
+on:
+  push:
+    branches: [verify/dashboard]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --global pnpm@10.15.1
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:setup && pnpm db:migrate && pnpm db:seed
+      - run: pnpm typecheck:api && pnpm build:web && pnpm test
+      - name: Report result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESULT: ${{ job.status }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA" -f state="$RESULT" -f context=dashboard-verification -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
