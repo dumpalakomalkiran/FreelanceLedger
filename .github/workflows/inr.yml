@@ -1,0 +1,52 @@
+name: Verify INR ledger
+on:
+  push:
+    branches: [verify/inr-only]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --global pnpm@10.15.1 && pnpm install --frozen-lockfile
+      - name: Upgrade a mixed-currency demo ledger
+        run: |
+          pnpm db:setup
+          git worktree add --detach "$RUNNER_TEMP/old-ledger" 1ad777b5d1f11d96ee3cc3165c4f67782b9eb9a7
+          node "$RUNNER_TEMP/old-ledger/api/src/db/run.ts" migrate
+          node "$RUNNER_TEMP/old-ledger/api/src/db/run.ts" seed
+          test "$(psql -d freelanceledger -Atc "select count(*) from invoices where currency='USD'")" -gt 0
+          snapshot() {
+            psql -d freelanceledger -Atc "select id,number,status,total_minor from invoices order by id; select id,invoice_id,amount_minor from invoice_lines order by id; select id,invoice_id from time_entries order by id"
+          }
+          snapshot > /tmp/before
+          pnpm db:migrate
+          pnpm db:migrate
+          snapshot > /tmp/after
+          diff /tmp/before /tmp/after
+          test "$(psql -d freelanceledger -Atc "select count(*) from clients where currency <> 'INR'")" = 0
+          test "$(psql -d freelanceledger -Atc "select count(*) from invoices where currency <> 'INR'")" = 0
+      - name: Fresh install and seed
+        env:
+          LEDGER_DB: ledger_fresh
+        run: |
+          pnpm db:setup && pnpm db:migrate && pnpm db:seed
+          test "$(psql -d ledger_fresh -Atc "select count(*) from invoices where currency='INR'")" = 4
+      - run: pnpm typecheck:api && pnpm build:web && pnpm test
+      - name: Report result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESULT: ${{ job.status }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA" -f state="$RESULT" -f context=inr-verification -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
