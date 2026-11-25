@@ -1,5 +1,5 @@
 import {Component, computed, inject, signal} from '@angular/core';
-import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
+import {type AbstractControl, FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {RouterLink} from '@angular/router';
 import {forkJoin} from 'rxjs';
 import {Ledger, type Entry, type Project, type Client} from '../api/ledger';
@@ -33,7 +33,7 @@ export class TimePage {
     project_id:[0,Validators.min(1)], entry_date:['',Validators.required],
     minutes:[60,[Validators.required,Validators.min(1),Validators.max(2147483647),Validators.pattern(/^\d+$/)]],
     description:['',[Validators.required,Validators.pattern(/\S/),Validators.maxLength(2000)]],
-    billable:true,rate:['',control=>control.value && parseRate(control.value)===null?{rate:true}:null]
+    billable:true,rate:['',(control:AbstractControl<string>)=>control.value && parseRate(control.value)===null?{rate:true}:null]
   });
   constructor(){this.load();}
   load(){

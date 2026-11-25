@@ -16,14 +16,6 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --global pnpm@10.15.1
-      - run: pnpm install --no-frozen-lockfile
-      - uses: actions/upload-artifact@v4
-        with:
-          name: resolved-lockfile
-          path: pnpm-lock.yaml
-      - name: Capture resolved dependency graph
-        run: |
-          gzip -nc pnpm-lock.yaml | base64 -w 160 | sed 's/^/LEDGER_LOCK_CHUNK /'
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:setup && pnpm db:migrate && pnpm db:seed
       - run: pnpm typecheck:api && pnpm build:web

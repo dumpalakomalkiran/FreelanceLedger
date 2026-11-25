@@ -1,6 +1,6 @@
 import {Component, computed, inject, signal} from '@angular/core';
 import {Router,RouterLink} from '@angular/router';
-import {FormBuilder,ReactiveFormsModule,Validators} from '@angular/forms';
+import {type AbstractControl, FormBuilder,ReactiveFormsModule,Validators} from '@angular/forms';
 import {forkJoin} from 'rxjs';
 import {Ledger,type Client,type Project,type Invoice,type Status} from '../api/ledger';
 import {MoneyPipe,parseRate} from '../shared/money';
@@ -21,7 +21,7 @@ export class InvoicesPage {
   readonly statuses=['draft','sent','paid'] as const;
   readonly form=inject(FormBuilder).nonNullable.group({
     project_id:[0,Validators.min(1)], from:['',Validators.required], to:['',Validators.required],
-    issue_date:'', tax:['0',control=>{
+    issue_date:'', tax:['0',(control:AbstractControl<string>)=>{
       const bps=parseRate(control.value);
       return bps!==null && BigInt(bps)<=10000n?null:{tax:true};
     }]
