@@ -1,0 +1,15 @@
+{
+  "name": "freelanceledger",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.15.1",
+  "engines": {
+    "node": ">=22.22.3 <23",
+    "pnpm": ">=10 <11"
+  },
+  "scripts": {
+    "db:setup": "bash scripts/setup-db.sh",
+    "db:migrate": "node api/src/db/run.ts migrate",
+    "db:seed": "node api/src/db/run.ts seed"
+  }
+}
