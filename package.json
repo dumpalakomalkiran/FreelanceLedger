@@ -10,6 +10,10 @@
   "scripts": {
     "db:setup": "bash scripts/setup-db.sh",
     "db:migrate": "node api/src/db/run.ts migrate",
-    "db:seed": "node api/src/db/run.ts seed"
+    "db:seed": "node api/src/db/run.ts seed",
+    "dev:api": "pnpm --filter @freelanceledger/api dev",
+    "test:api": "pnpm --filter @freelanceledger/api test",
+    "typecheck:api": "pnpm --filter @freelanceledger/api typecheck",
+    "test": "pnpm test:api"
   }
 }
