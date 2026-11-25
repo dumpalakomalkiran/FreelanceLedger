@@ -1,0 +1,16 @@
+<div class="screen"><a routerLink="/invoices">Back to invoices</a></div>
+@if(loadError() || state.error()){<p class="error screen" role="alert">{{loadError() || state.error()}} <button (click)="refresh.next()">Refresh</button></p>}
+@if(invoice();as i){
+<article class="invoice-sheet">
+<div class="heading"><h1>{{i.number}}</h1><strong class="status">{{i.status}}</strong></div>
+<div class="invoice-meta"><section><h2>Bill to</h2><strong>{{owner()?.name}}</strong><br>{{owner()?.email}}</section>
+<dl><dt>Issue date</dt><dd>{{i.issue_date}}</dd><dt>Due date</dt><dd>{{i.due_date}}</dd>
+@if(i.paid_on){<dt>Paid on</dt><dd>{{i.paid_on}}</dd>}<dt>Currency</dt><dd>{{i.currency}}</dd></dl></div>
+<div class="table-wrap"><table><caption class="sr">Invoice lines</caption><thead><tr><th>Description</th><th>Minutes</th><th>Rate / hour</th><th>Amount</th></tr></thead><tbody>
+@for(line of i.lines;track line.id){<tr><th scope="row">{{line.description}}</th><td>{{line.quantity_minutes}}</td><td>{{line.unit_rate_minor | money:i.currency}}</td><td>{{line.amount_minor | money:i.currency}}</td></tr>}
+</tbody></table></div>
+<dl class="totals"><dt>Subtotal</dt><dd>{{i.subtotal_minor | money:i.currency}}</dd><dt>Tax ({{percent(i.tax_rate_bps.toString())}}%)</dt><dd>{{i.tax_minor | money:i.currency}}</dd>
+<dt><strong>Total</strong></dt><dd><strong>{{i.total_minor | money:i.currency}}</strong></dd></dl></article>
+<div class="actions screen">@if(i.status!=='paid'){<button class="primary" [disabled]="state.busy()" (click)="advance()">{{i.status==='draft'?'Mark sent':'Mark paid'}}</button>}
+<button (click)="print()">Print invoice</button>@if(i.status==='draft'){<button [disabled]="state.busy()" (click)="remove()">Delete draft</button>}</div>
+}@else if(!loadError()){<p role="status">Loading invoice…</p>}

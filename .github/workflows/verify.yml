@@ -21,7 +21,19 @@ jobs:
         with:
           name: resolved-lockfile
           path: pnpm-lock.yaml
+      - name: Capture resolved dependency graph
+        run: |
+          gzip -nc pnpm-lock.yaml | base64 -w 160 | sed 's/^/LEDGER_LOCK_CHUNK /'
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:setup && pnpm db:migrate && pnpm db:seed
       - run: pnpm typecheck:api && pnpm build:web
       - run: pnpm test
+      - name: Smoke test development servers and seed
+        run: |
+          pnpm db:setup && pnpm db:migrate && pnpm db:seed
+          pnpm dev > "$RUNNER_TEMP/ledger-dev.log" 2>&1 &
+          dev_pid=$!
+          trap 'kill "$dev_pid" || true' EXIT
+          curl -fsS --retry 45 --retry-delay 1 --retry-all-errors http://localhost:4200/api/invoices -o /tmp/ledger-invoices.json
+          node -e "if(require('/tmp/ledger-invoices.json').length !== 4) process.exit(1)"
+          curl -fsS http://localhost:4200/invoices/1 | grep -q 'ledger-root'
