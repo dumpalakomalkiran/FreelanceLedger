@@ -6,7 +6,7 @@
     <div class="fields"><label>Project name<input formControlName="name" maxlength="200" required autofocus></label>
     <label>Client<select formControlName="client_id" required><option [ngValue]="0" disabled>Select a client</option>
     @for (client of clients();track client.id) {<option [ngValue]="client.id">{{client.name}} · {{client.currency}}</option>}</select></label>
-    <label>Hourly rate {{owners().get(form.controls.client_id.value)?.currency}}<input formControlName="rate" inputmode="decimal" required></label></div>
+    <label>Hourly rate (₹)<input formControlName="rate" inputmode="decimal" required></label></div>
     @if (form.touched && form.invalid) {<p class="error">Enter a name, select a client and enter a nonnegative rate with up to two decimal places.</p>}
     <div class="actions"><button class="primary" type="submit">Save project</button><button type="button" (click)="state.close()">Cancel</button></div>
   </fieldset></form>
@@ -17,7 +17,7 @@
   @if (visible().length) {
     <div class="table-wrap"><table><caption class="sr">Projects</caption><thead><tr><th>Project</th><th>Client</th><th>Hourly rate</th><th><span class="sr">Actions</span></th></tr></thead>
     <tbody>@for (row of visible(); track row.id) {
-      <tr><th scope="row">{{row.name}}</th><td>{{owners().get(row.client_id)?.name}}</td><td class="amount">@if (owners().get(row.client_id); as owner) { {{row.default_hourly_rate_minor | money:owner.currency}} }</td>
+      <tr><th scope="row">{{row.name}}</th><td>{{owners().get(row.client_id)?.name}}</td><td class="amount">{{row.default_hourly_rate_minor | money}}</td>
       <td><div class="actions"><button (click)="edit(row)" [disabled]="state.busy() || state.open()">Edit</button>
       <button (click)="archive(row)" [disabled]="state.busy() || state.open()">{{row.archived?'Restore':'Archive'}}</button></div></td></tr>
     }</tbody></table></div>

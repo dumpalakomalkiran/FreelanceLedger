@@ -66,7 +66,9 @@ set +a
 
 ## Money, dates and invoice rules
 
-Rates and amounts use integer paise (INR) or cents (USD). The API accepts and returns monetary fields as decimal integer **strings**. For example, `"6500"` represents USD 65.00 for a USD client. Enter **65.00** in the project's hourly-rate field. The browser converts it to minor units before submitting.
+For an existing demo database, stop the app and run `pnpm db:migrate` before restarting. The INR migration sets every demo client and invoice to INR and preserves all numeric rates, line amounts and totals.
+
+Rates and amounts use integer paise (INR). The API accepts and returns monetary fields as decimal integer **strings**. For example, `"6500"` represents ₹65.00. Enter **65.00** in the project's hourly-rate field. The browser converts it to minor units before submitting.
 
 For each eligible time entry, the API takes its rate override if present, including zero. Otherwise it takes the project's current default rate. It groups entries by rate and sums each group's minutes before rounding. For nonnegative values, the following formulas use integer division:
 
@@ -85,7 +87,7 @@ Paths below include the `/api` prefix. List endpoints return JSON arrays. Create
 
 | Method | Path | Operation |
 | --- | --- | --- |
-| GET, POST | `/api/clients` | List clients or create one with name, email, currency and optional payment terms |
+| GET, POST | `/api/clients` | List clients or create one with name, email and optional payment terms. Currency defaults to INR. |
 | GET, PATCH | `/api/clients/:id` | Read or edit a client |
 | GET, POST | `/api/projects` | Filter by `client_id` and `archived`, or create a project |
 | GET, PATCH | `/api/projects/:id` | Read, edit, archive or restore a project |

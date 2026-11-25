@@ -9,10 +9,10 @@ import {InvoicesPage} from './invoices';
 import {InvoiceDetailPage} from './invoice-detail';
 import type {Entry,Detail} from '../api/ledger';
 
-const client={id:1,name:'Cedar',currency:'USD',email:'hello@example.com',payment_terms_days:14};
+const client={id:1,name:'Cedar',currency:'INR',email:'hello@example.com',payment_terms_days:14};
 const project={id:2,name:'Guide',client_id:1,archived:false,default_hourly_rate_minor:'1500'};
 const entry:Entry={id:3,project_id:2,description:'Research',entry_date:'2026-02-01',billable:true,minutes:60,hourly_rate_override_minor:null,invoice_id:null};
-const invoice:Detail={id:4,client_id:1,number:'INV-2026-0001',currency:'USD',status:'draft',issue_date:'2026-02-01',due_date:'2026-02-15',
+const invoice:Detail={id:4,client_id:1,number:'INV-2026-0001',currency:'INR',status:'draft',issue_date:'2026-02-01',due_date:'2026-02-15',
   tax_rate_bps:1000,tax_minor:'150',subtotal_minor:'1500',total_minor:'1650',created_at:'2026-02-01T00:00:00Z',paid_on:null,
   lines:[{id:1,invoice_id:4,description:'Guide',unit_rate_minor:'1500',amount_minor:'1500',quantity_minutes:'60'}]};
 let http:HttpTestingController;
@@ -25,7 +25,7 @@ afterEach(()=>{http.verify();vi.restoreAllMocks();});
 function refs(){http.expectOne('/api/projects').flush([project]);http.expectOne('/api/clients').flush([client]);}
 it('filters time inclusively, keeps attached entries locked and saves exact overrides',()=>{
   const f=TestBed.createComponent(TimePage),p=f.componentInstance;
-  http.expectOne('/api/time-entries').flush([entry,{...entry,id:5,invoice_id:4}]);refs();
+  http.expectOne('/api/time-entries').flush([entry,{...entry,id:5,invoice_id:4}]);http.expectOne('/api/projects').flush([project]);
   p.filters.patchValue({from:entry.entry_date,to:entry.entry_date,invoiced:'false'});p.apply();
   expect(p.visible()).toEqual([entry]);p.edit({...entry,invoice_id:4});expect(p.state.open()).toBe(false);
   p.edit(entry);p.form.controls.rate.setValue('0');p.save();
@@ -51,7 +51,7 @@ it('prints the loaded invoice and offers only its next status action',()=>{
   const f=TestBed.createComponent(InvoiceDetailPage),p=f.componentInstance;
   http.expectOne('/api/invoices/4').flush(invoice);http.expectOne('/api/clients').flush([client]);f.detectChanges();
   const screen=()=>f.nativeElement.textContent as string;
-  expect(screen()).toContain('$16.50');expect(screen()).toContain('Mark sent');
+  expect(screen()).toContain('₹16.50');expect(screen()).toContain('Mark sent');
   const print=vi.spyOn(window,'print').mockImplementation(()=>{});p.print();expect(print).toHaveBeenCalledOnce();
   p.advance();let req=http.expectOne('/api/invoices/4/status');expect(req.request.body).toEqual({status:'sent'});
   req.flush({...invoice,status:'sent'});f.detectChanges();expect(screen()).not.toContain('Delete draft');

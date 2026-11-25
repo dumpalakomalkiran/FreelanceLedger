@@ -12,8 +12,7 @@
     @for(group of s.invoiceGroups;track group.status){
       <a routerLink="/invoices" [queryParams]="{status:group.status}">
         <span>{{group.label}}</span><strong>{{group.count}}</strong>
-        @for(total of group.totals;track total.currency){<small>{{total.currency}} · {{total.minor | money:total.currency}}</small>}
-        @empty {<small>No invoices</small>}
+        <small>{{group.totalMinor | money}}</small>
       </a>
     }
   </div></section>

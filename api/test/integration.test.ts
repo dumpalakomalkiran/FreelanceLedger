@@ -35,7 +35,7 @@ describe('ledger API with PostgreSQL', () => {
     return res.body;
   }
   async function fixtures() {
-    const client = await send('POST','/clients',201,{name:'Cedar',email:'hello@example.com',currency:'USD'});
+    const client = await send('POST','/clients',201,{name:'Cedar',email:'hello@example.com'});
     const project = await send('POST','/projects',201,{client_id:client.id,name:'Guide',default_hourly_rate_minor:'15'});
     return {client,project};
   }
@@ -55,6 +55,9 @@ describe('ledger API with PostgreSQL', () => {
   it('edits clients, archives projects and edits and removes unattached entries',async () => {
     const {client,project} = await fixtures();
     assert.equal(client.payment_terms_days,14);
+    assert.equal(client.currency,'INR');
+    await send('PATCH','/clients/'+client.id,400,{currency:'USD'});
+    await send('POST','/clients',400,{name:'Other',email:'other@example.com',currency:'USD'});
     await send('PATCH','/clients/'+client.id,200,{name:'Cedar Studio'});
     assert.equal((await send('GET','/clients/'+client.id,200)).name,'Cedar Studio');
     assert.ok((await send('GET','/clients',200)).some((c:{id:number}) => c.id===client.id));
@@ -98,7 +101,7 @@ describe('ledger API with PostgreSQL', () => {
     await send('PATCH','/projects/'+project.id,200,{default_hourly_rate_minor:'999'});
     await send('PATCH','/clients/'+client.id,200,{currency:'INR',payment_terms_days:0});
     const paid = await send('PATCH',url+'/status',200,{status:'paid'});
-    assert.deepEqual([paid.paid_on,paid.currency,paid.total_minor],['2026-01-31','USD','2']);
+    assert.deepEqual([paid.paid_on,paid.currency,paid.total_minor],['2026-01-31','INR','2']);
     assert.deepEqual(await send('GET',url,200),paid);
     assert.equal((await send('GET','/invoices?status=paid&client_id='+client.id,200)).length,1);
     await send('PATCH',url+'/status',409,{status:'draft'});

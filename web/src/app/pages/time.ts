@@ -2,7 +2,7 @@ import {Component, computed, inject, signal} from '@angular/core';
 import {type AbstractControl, FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {RouterLink} from '@angular/router';
 import {forkJoin} from 'rxjs';
-import {Ledger, type Entry, type Project, type Client} from '../api/ledger';
+import {Ledger, type Entry, type Project} from '../api/ledger';
 import {EditorState} from './editor-state';
 import {MoneyPipe, parseRate, rateInput} from '../shared/money';
 
@@ -14,9 +14,7 @@ export class TimePage {
   readonly loaded = signal(false);
   readonly rows = signal<Entry[]>([]);
   readonly projects = signal<Project[]>([]);
-  readonly clients = signal<Client[]>([]);
   readonly projectMap = computed(()=>new Map(this.projects().map(p=>[p.id,p])));
-  readonly currencies = computed(()=>new Map(this.clients().map(c=>[c.id,c.currency])));
   readonly originalProject = signal<number|null>(null);
   readonly available = computed(()=>this.projects().filter(p=>!p.archived || p.id===this.originalProject()));
   readonly active = computed(()=>this.projects().some(p=>!p.archived));
@@ -37,8 +35,8 @@ export class TimePage {
   });
   constructor(){this.load();}
   load(){
-    this.state.run(forkJoin({rows:this.api.entries(),projects:this.api.projects(),clients:this.api.clients()}),data=>{
-      this.rows.set(data.rows);this.projects.set(data.projects);this.clients.set(data.clients);this.loaded.set(true);
+    this.state.run(forkJoin({rows:this.api.entries(),projects:this.api.projects()}),data=>{
+      this.rows.set(data.rows);this.projects.set(data.projects);this.loaded.set(true);
     });
   }
   apply(){

@@ -6,7 +6,7 @@ import { beforeEach,afterEach,it,expect } from 'vitest';
 import { ClientsPage } from './clients';
 import { ProjectsPage } from './projects';
 
-const client={id:1,name:'Cedar',email:'cedar@example.com',currency:'USD' as const,payment_terms_days:14};
+const client={id:1,name:'Cedar',email:'cedar@example.com',currency:'INR' as const,payment_terms_days:14};
 const project={id:2,name:'Guide',client_id:1,default_hourly_rate_minor:'6500',archived:false};
 let http:HttpTestingController;
 beforeEach(()=>{
@@ -38,7 +38,7 @@ it('preserves client input when saving fails and allows retry',()=>{
 it('edits rates in major units and archives and restores the project',()=>{
   const f=TestBed.createComponent(ProjectsPage),page=f.componentInstance;
   http.expectOne('/api/projects').flush([project]);http.expectOne('/api/clients').flush([client]);f.detectChanges();
-  expect(f.nativeElement.querySelector('tbody').textContent).toContain('$65.00');
+  expect(f.nativeElement.querySelector('tbody').textContent).toContain('₹65.00');
   page.edit(project);page.form.controls.rate.setValue('70.25');page.save();
   const edit=http.expectOne('/api/projects/2');expect(edit.request.body.default_hourly_rate_minor).toBe('7025');
   const saved={...project,default_hourly_rate_minor:'7025'};edit.flush(saved);

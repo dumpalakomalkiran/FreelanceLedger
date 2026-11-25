@@ -7,7 +7,6 @@
     <div class="fields">
       <label>Client name<input formControlName="name" maxlength="200" required autofocus></label>
       <label>Email<input formControlName="email" type="email" maxlength="254" required></label>
-      <label>Currency<select formControlName="currency"><option>INR</option><option>USD</option></select></label>
       <label>Payment terms (days)<input formControlName="payment_terms_days" type="number" min="0" max="3650" step="1" required></label>
     </div>
     @if (form.touched && form.invalid) {<p class="error">Enter a name, a valid email and whole payment terms between 0 and 3650 days.</p>}

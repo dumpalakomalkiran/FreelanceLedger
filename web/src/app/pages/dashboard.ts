@@ -1,7 +1,7 @@
 import {Component, inject, signal} from '@angular/core';
 import {RouterLink} from '@angular/router';
 import {forkJoin} from 'rxjs';
-import {Ledger, type Client, type Project, type Entry, type Invoice, type Status, type Currency} from '../api/ledger';
+import {Ledger, type Client, type Project, type Entry, type Invoice, type Status} from '../api/ledger';
 import {MoneyPipe} from '../shared/money';
 import {EditorState} from './editor-state';
 
@@ -22,13 +22,8 @@ export function summarize(data: LedgerData) {
   ];
   const invoiceGroups = groups.map(group => {
     const invoices = data.invoices.filter(i => i.status === group.status);
-    const sums = new Map<Currency,bigint>();
-    for (const invoice of invoices) {
-      sums.set(invoice.currency, (sums.get(invoice.currency) ?? 0n) + BigInt(invoice.total_minor));
-    }
-    const totals = [...sums].sort(([a],[b]) => a.localeCompare(b))
-      .map(([currency,amount]) => ({currency,minor:amount.toString()}));
-    return {...group,count:invoices.length,totals};
+    const total = invoices.reduce((sum, invoice) => sum + BigInt(invoice.total_minor), 0n);
+    return {...group,count:invoices.length,totalMinor:total.toString()};
   });
   const minutes = new Map<number,number>();
   let unbilledMinutes = 0;

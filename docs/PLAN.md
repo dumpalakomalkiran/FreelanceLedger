@@ -36,7 +36,7 @@ CREATE TABLE clients (
   id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   name text NOT NULL CHECK (length(btrim(name)) BETWEEN 1 AND 200),
   email text NOT NULL CHECK (length(btrim(email)) BETWEEN 1 AND 254),
-  currency text NOT NULL CHECK (currency IN ('INR','USD')),
+  currency text NOT NULL DEFAULT 'INR' CHECK (currency = 'INR'),
   payment_terms_days integer NOT NULL DEFAULT 14 CHECK (payment_terms_days BETWEEN 0 AND 3650)
 );
 
@@ -58,7 +58,7 @@ CREATE TABLE invoices (
   id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   number text NOT NULL UNIQUE CHECK (number ~ '^INV-[0-9]{4}-[0-9]{4,}$'),
   client_id integer NOT NULL REFERENCES clients,
-  currency text NOT NULL CHECK (currency IN ('INR','USD')),
+  currency text NOT NULL DEFAULT 'INR' CHECK (currency = 'INR'),
   issue_date date NOT NULL,
   due_date date NOT NULL CHECK (due_date >= issue_date),
   tax_rate_bps integer NOT NULL DEFAULT 0 CHECK (tax_rate_bps BETWEEN 0 AND 10000),

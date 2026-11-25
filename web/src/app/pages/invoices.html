@@ -14,5 +14,5 @@
 <div class="filters" aria-label="Invoice status"><button [attr.aria-pressed]="status()===''" (click)="status.set('')">All</button>
 @for(s of statuses;track s){<button class="status" [attr.aria-pressed]="status()===s" (click)="status.set(s)">{{s}}</button>}</div>
 @if(visible().length){<div class="table-wrap"><table><caption class="sr">Invoices</caption><thead><tr><th>Invoice</th><th>Client</th><th>Issued</th><th>Due</th><th>Status</th><th>Total</th></tr></thead><tbody>
-@for(i of visible();track i.id){<tr><th scope="row"><a [routerLink]="['/invoices',i.id]">{{i.number}}</a></th><td>{{names().get(i.client_id)}}</td><td>{{i.issue_date}}</td><td>{{i.due_date}}</td><td class="status">{{i.status}}</td><td class="amount">{{i.total_minor | money:i.currency}}</td></tr>}
+@for(i of visible();track i.id){<tr><th scope="row"><a [routerLink]="['/invoices',i.id]">{{i.number}}</a></th><td>{{names().get(i.client_id)}}</td><td>{{i.issue_date}}</td><td>{{i.due_date}}</td><td class="status">{{i.status}}</td><td class="amount">{{i.total_minor | money}}</td></tr>}
 </tbody></table></div>}@else{<p class="empty">No invoices match this view.</p>}}

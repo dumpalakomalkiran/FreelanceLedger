@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
-export type Currency = 'INR' | 'USD';
-export interface ClientInput {name:string; email:string; currency:Currency; payment_terms_days:number}
-export interface Client extends ClientInput {id:number}
+export type Currency = 'INR';
+export interface ClientInput {name:string; email:string; payment_terms_days:number}
+export interface Client extends ClientInput {id:number; currency:Currency}
 export interface ProjectInput {name:string; client_id:number; default_hourly_rate_minor:string}
 export interface Project extends ProjectInput {id:number; archived:boolean}
 export interface EntryInput {project_id:number; entry_date:string; minutes:number; description:string; billable:boolean; hourly_rate_override_minor:string|null}

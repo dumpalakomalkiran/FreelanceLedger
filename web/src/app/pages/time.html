@@ -7,7 +7,7 @@
   @for(p of available(); track p.id){<option [ngValue]="p.id">{{p.name}}</option>}</select></label>
   <label>Date<input type="date" formControlName="entry_date" required></label>
   <label>Minutes<input type="number" formControlName="minutes" min="1" step="1" required></label>
-  <label>Hourly rate override {{currencies().get(projectMap().get(form.controls.project_id.value)?.client_id ?? 0)}}<input formControlName="rate" inputmode="decimal" placeholder="Project rate"></label>
+  <label>Hourly rate override (₹)<input formControlName="rate" inputmode="decimal" placeholder="Project rate"></label>
   <label>Description<textarea formControlName="description" rows="2" maxlength="2000" required></textarea></label>
   <label class="check"><input type="checkbox" formControlName="billable"> Billable</label></div>
   @if(form.touched && form.invalid){<p class="error">Select a project and date, add a description and enter positive whole minutes. An optional rate can have up to two decimal places.</p>}
@@ -25,7 +25,7 @@
 @if(visible().length){
 <div class="table-wrap"><table><caption class="sr">Recorded time</caption><thead><tr><th>Date</th><th>Project / description</th><th>Minutes</th><th>Rate / hour</th><th>Billing</th><th>Actions</th></tr></thead><tbody>
 @for(e of visible();track e.id){<tr><td>{{e.entry_date}}</td><td><strong>{{projectMap().get(e.project_id)?.name}}</strong><br>{{e.description}}</td><td>{{e.minutes}}</td><td>
-@if(projectMap().get(e.project_id);as p){@if(currencies().get(p.client_id);as currency){ {{(e.hourly_rate_override_minor ?? p.default_hourly_rate_minor) | money:currency}} }}
+@if(projectMap().get(e.project_id);as p){ {{(e.hourly_rate_override_minor ?? p.default_hourly_rate_minor) | money}}}
 </td><td>{{e.billable?'Billable':'Non-billable'}}</td><td>
 @if(e.invoice_id!==null){<a [routerLink]="['/invoices',e.invoice_id]">View invoice</a>}@else{
 <div class="actions"><button [disabled]="state.open() || state.busy()" (click)="edit(e)">Edit</button><button [disabled]="state.open() || state.busy()" (click)="remove(e)">Delete</button></div>}

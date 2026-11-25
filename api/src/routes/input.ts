@@ -7,7 +7,7 @@ const money = z.string().regex(/^(0|[1-9]\d{0,18})$/).refine(v => /^\d{1,19}$/.t
 const name = z.string().trim().min(1).max(200);
 const date = z.string().date().refine(v => !v.startsWith('0000'));
 export const status = z.enum(['draft','sent','paid']);
-export const client = z.object({ name, email: z.string().trim().email().max(254), currency: z.enum(['INR','USD']),
+export const client = z.object({ name, email: z.string().trim().email().max(254), currency: z.literal('INR').optional(),
   payment_terms_days: z.number().int().min(0).max(3650).optional() }).strict();
 export const project = z.object({name, client_id: id, default_hourly_rate_minor: money, archived: z.boolean().optional()}).strict();
 export const entry = z.object({project_id: id, entry_date: date, minutes: id, description: z.string().trim().min(1).max(2000),

@@ -1,5 +1,5 @@
 import { Pipe, type PipeTransform } from '@angular/core';
-import type { Currency } from '../api/ledger';
+const rupees = new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR'});
 export function parseRate(text:string):string|null {
   if (!/^\d{1,17}(\.\d{1,2})?$/.test(text)) return null;
   const [whole,fraction=''] = text.split('.');
@@ -11,9 +11,9 @@ export function rateInput(minor:string):string {
 }
 @Pipe({name:'money'})
 export class MoneyPipe implements PipeTransform {
-  transform(minor:string,currency:Currency):string {
-    const [major,cents] = rateInput(minor).split('.');
-    return new Intl.NumberFormat(currency==='INR'?'en-IN':'en-US',{style:'currency',currency})
-      .formatToParts(BigInt(major)).map(part => part.type==='fraction'?cents:part.value).join('');
+  transform(minor:string):string {
+    const [major,paise] = rateInput(minor).split('.');
+    return rupees
+      .formatToParts(BigInt(major)).map(part => part.type==='fraction'?paise:part.value).join('');
   }
 }

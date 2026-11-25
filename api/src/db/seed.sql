@@ -2,7 +2,6 @@ DO $seed$
 DECLARE
   client_ids integer[] := '{}';
   client_names text[] := ARRAY['Loom Studio','Cedar Press','Harbor Works'];
-  currencies text[] := ARRAY['INR','USD','USD'];
   project_names text[] := ARRAY['Studio catalogue','Spring journal','Workshop site','Type library','Field guide'];
   owners integer[] := ARRAY[1,2,3,1,2];
   rates bigint[] := ARRAY[120000,6500,9000,80000,7200];
@@ -24,7 +23,7 @@ BEGIN
   END IF;
   FOR i IN 1..3 LOOP
     INSERT INTO clients (name, email, currency)
-    VALUES (client_names[i], 'studio' || i || '@example.com', currencies[i])
+    VALUES (client_names[i], 'studio' || i || '@example.com', 'INR')
     RETURNING id INTO client_key;
     client_ids := array_append(client_ids, client_key);
   END LOOP;
@@ -37,7 +36,7 @@ BEGIN
       issue_day := date '2026-01-20' + p;
       INSERT INTO invoices (number, client_id, currency, issue_date, due_date,
         tax_rate_bps, subtotal_minor, tax_minor, total_minor, status, paid_on, created_at)
-      VALUES ('INV-2026-' || lpad(p::text, 4, '0'), client_ids[owners[p]], currencies[owners[p]],
+      VALUES ('INV-2026-' || lpad(p::text, 4, '0'), client_ids[owners[p]], 'INR',
         issue_day, issue_day + 14, basis_points[p], subtotals[p], taxes[p],
         subtotals[p] + taxes[p], statuses[p],
         CASE WHEN statuses[p] = 'paid' THEN issue_day + 7 END,
