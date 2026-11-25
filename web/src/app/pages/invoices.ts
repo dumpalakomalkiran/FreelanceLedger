@@ -1,5 +1,5 @@
 import {Component, computed, inject, signal} from '@angular/core';
-import {Router,RouterLink} from '@angular/router';
+import {ActivatedRoute,Router,RouterLink} from '@angular/router';
 import {type AbstractControl, FormBuilder,ReactiveFormsModule,Validators} from '@angular/forms';
 import {forkJoin} from 'rxjs';
 import {Ledger,type Client,type Project,type Invoice,type Status} from '../api/ledger';
@@ -26,7 +26,11 @@ export class InvoicesPage {
       return bps!==null && BigInt(bps)<=10000n?null:{tax:true};
     }]
   },{validators:group=>group.value.from && group.value.to && group.value.from>group.value.to?{range:true}:null});
-  constructor(){this.load();}
+  constructor(){
+    const status=inject(ActivatedRoute).snapshot.queryParamMap?.get('status');
+    if(status==='sent'||status==='paid'||status==='draft')this.status.set(status);
+    this.load();
+  }
   load(){
     this.state.run(forkJoin({rows:this.api.invoices(),clients:this.api.clients(),projects:this.api.projects()}),data=>{
       this.rows.set(data.rows);this.clients.set(data.clients);this.projects.set(data.projects);this.loaded.set(true);

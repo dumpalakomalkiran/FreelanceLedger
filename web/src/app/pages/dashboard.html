@@ -1,0 +1,27 @@
+<div class="heading"><h1>Dashboard</h1><button (click)="refresh()" [disabled]="state.busy()">Refresh</button></div>
+@if(state.error()){<p class="error" role="alert">{{state.error()}} @if(summary()){Showing the last loaded figures.}</p>}
+@if(state.busy()){<p role="status">Loading dashboard…</p>}
+@if(summary();as s){
+  <div class="overview">
+    <a routerLink="/clients"><span>Clients</span><strong>{{s.clients}}</strong><small>Client directory</small></a>
+    <a routerLink="/projects"><span>Active projects</span><strong>{{s.active}}</strong><small>{{s.projects - s.active}} archived</small></a>
+    <a routerLink="/time"><span>Recorded time</span><strong>{{s.recorded}}</strong><small>{{s.entries}} time entries</small></a>
+    <a routerLink="/invoices"><span>Invoices</span><strong>{{s.invoices}}</strong><small>All statuses</small></a>
+  </div>
+  <section><h2>Invoice status</h2><div class="billing">
+    @for(group of s.invoiceGroups;track group.status){
+      <a routerLink="/invoices" [queryParams]="{status:group.status}">
+        <span>{{group.label}}</span><strong>{{group.count}}</strong>
+        @for(total of group.totals;track total.currency){<small>{{total.currency}} · {{total.minor | money:total.currency}}</small>}
+        @empty {<small>No invoices</small>}
+      </a>
+    }
+  </div></section>
+  <section><div class="work-title"><h2>Work ready to invoice</h2><strong>{{s.unbilled}}</strong></div>
+    @if(s.work.length){
+      <div class="table-wrap"><table><thead><tr><th>Project</th><th>Client</th><th>Unbilled time</th></tr></thead>
+      <tbody>@for(p of s.work;track p.id){<tr><th scope="row">{{p.name}}</th><td>{{p.client}}</td><td>{{duration(p.minutes)}}</td></tr>}</tbody></table></div>
+      <p><a routerLink="/invoices">Open invoicing →</a></p>
+    }@else{<p class="empty">All billable time has been accounted for.</p>}
+  </section>
+}

@@ -1,0 +1,7 @@
+.overview,.billing{display:grid;gap:1rem;margin:1.25rem 0;grid-template-columns:repeat(auto-fit,minmax(min(100%,175px),1fr))}
+.overview a,.billing a{display:grid;align-content:start;gap:.45rem;background:white;color:inherit;text-decoration:none;border:1px solid #c6d0c4;border-radius:8px;padding:1.2rem}
+.overview a:hover,.billing a:hover{border-color:#416b58;background:#f2f7ed}
+.overview strong,.billing strong{font:500 clamp(1.8rem,3vw,2.5rem) Georgia,serif;font-variant-numeric:tabular-nums}
+small{color:#496454}section{margin-top:2.2rem}h2{font:500 1.65rem Georgia,serif;margin:0}
+.work-title{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:1rem}
+.billing a:first-child{border-top:3px solid #9a7337}.billing a:nth-child(2){border-top:3px solid #39674f}.billing a:last-child{border-top:3px solid #889387}
