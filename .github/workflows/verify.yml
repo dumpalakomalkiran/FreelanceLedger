@@ -1,0 +1,27 @@
+name: Verify ledger on Ubuntu
+on:
+  push:
+    branches: [verify/stage-5]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --global pnpm@10.15.1
+      - run: pnpm install --no-frozen-lockfile
+      - uses: actions/upload-artifact@v4
+        with:
+          name: resolved-lockfile
+          path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:setup && pnpm db:migrate && pnpm db:seed
+      - run: pnpm typecheck:api && pnpm build:web
+      - run: pnpm test
